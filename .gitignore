@@ -1,0 +1,42 @@
+# ROS 2 build artifacts
+build/
+install/
+log/
+
+# Unikraft build artifacts
+.unikraft/
+.kraft/
+*.dbg
+*.gz
+
+# Build directories
+dist/
+devel/
+
+# Compiled files
+*.o
+*.so
+*.a
+*.pyc
+*.pyo
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*.log
+
+# Kernel images
+*.elf
+*.bin
+*.img

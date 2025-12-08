@@ -1,0 +1,76 @@
+---
+specification: v0.6
+
+# Unikraft application configuration for ROS 2 with app-elfloader
+name: unikraft-ros2
+unikraft:
+  version: stable
+  kconfig:
+    # Enable app-elfloader for loading statically-linked PIE binaries
+    CONFIG_APPELFLOADER: 'y'
+    CONFIG_APPELFLOADER_VFSEXEC: 'y'
+    
+    # Enable POSIX scheduler for multi-threaded execution
+    CONFIG_LIBUKSCHED: 'y'
+    CONFIG_LIBUKSCHEDCOOP: 'y'
+    CONFIG_LIBPOSIX_PROCESS: 'y'
+    CONFIG_LIBPOSIX_SYSINFO: 'y'
+    
+    # Enable threading support
+    CONFIG_LIBPTHREAD_EMBEDDED: 'y'
+    CONFIG_LIBUKSCHED_TCB: 'y'
+    
+    # Enable VFS and filesystem support
+    CONFIG_LIBVFSCORE: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_ROOTFS: 'y'
+    CONFIG_LIBRAMFS: 'y'
+    CONFIG_LIBRAMFS_DTB: 'y'
+    
+    # Memory configuration
+    CONFIG_LIBUKALLOC: 'y'
+    CONFIG_LIBUKBOOT_INITBBUDDY: 'y'
+    CONFIG_LIBUKALLOCBBUDDY: 'y'
+    
+    # Enable debugging (optional, can be removed for production)
+    CONFIG_LIBUKDEBUG: 'y'
+    CONFIG_LIBUKDEBUG_PRINTD: 'y'
+
+# Libraries configuration
+libraries:
+  # lwip: Lightweight IP stack for networking
+  lwip:
+    version: stable
+    kconfig:
+      CONFIG_LWIP_UKNETDEV: 'y'
+      CONFIG_LWIP_AUTOIFACE: 'y'
+      CONFIG_LWIP_DHCP: 'y'
+      CONFIG_LWIP_TCP: 'y'
+      CONFIG_LWIP_UDP: 'y'
+      CONFIG_LWIP_SOCKET: 'y'
+      CONFIG_LWIP_THREADS: 'y'
+      
+  # POSIX scheduler
+  posix-process:
+    version: stable
+    
+  posix-sysinfo:
+    version: stable
+
+# Target configurations
+targets:
+  - name: unikraft-ros2-qemu-x86_64
+    architecture: x86_64
+    platform: qemu
+
+# Runtime configuration
+cmd:
+  - "/unikraft_ros2_node"
+
+# Volume mapping for initrd (ROS 2 binary and dependencies)
+volumes:
+  - ./install/unikraft_ros2/lib/unikraft_ros2:/
+
+# Network configuration
+networks:
+  - name: default
+    driver: bridge
