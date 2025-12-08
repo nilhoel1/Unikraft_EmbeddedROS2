@@ -49,7 +49,7 @@ libraries:
       CONFIG_LWIP_SOCKET: 'y'
       CONFIG_LWIP_THREADS: 'y'
       
-  # POSIX scheduler
+  # POSIX libraries for process and system info
   posix-process:
     version: stable
     
@@ -67,8 +67,9 @@ cmd:
   - "/unikraft_ros2_node"
 
 # Volume mapping for initrd (ROS 2 binary and dependencies)
+# Note: This path is created by the build script
 volumes:
-  - ./install/unikraft_ros2/lib/unikraft_ros2:/
+  - ./.unikraft/initrd:/
 
 # Network configuration
 networks:

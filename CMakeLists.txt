@@ -51,11 +51,8 @@ ament_target_dependencies(unikraft_ros2_node
 target_link_libraries(unikraft_ros2_node
   -static-libgcc
   -static-libstdc++
-  -Wl,--whole-archive
-  -Wl,--no-whole-archive
   -pthread
   -lrt
-  -ldl
 )
 
 # Set linker flags to ensure static linking
