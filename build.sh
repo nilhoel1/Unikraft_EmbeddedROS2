@@ -26,6 +26,21 @@ else
     exit 1
 fi
 
+# Check for required tools
+if ! command -v vcs &> /dev/null; then
+    echo "✗ vcs tool not found. Please install python3-vcstool"
+    echo "  You can install it with: sudo apt-get install python3-vcstool"
+    exit 1
+fi
+
+if ! command -v rosdep &> /dev/null; then
+    echo "✗ rosdep not found. Please install python3-rosdep"
+    echo "  You can install it with: sudo apt-get install python3-rosdep"
+    exit 1
+fi
+
+echo "✓ Required tools available (vcs, rosdep)"
+
 # Clean previous builds (optional)
 if [ "$1" = "clean" ]; then
     echo "Cleaning previous builds..."
