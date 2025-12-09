@@ -2,6 +2,7 @@
 build/
 install/
 log/
+deps/
 
 # Unikraft build artifacts
 .unikraft/

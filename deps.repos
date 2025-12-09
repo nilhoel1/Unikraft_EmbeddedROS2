@@ -1,0 +1,96 @@
+repositories:
+  # Core ROS 2 Client Library
+  rclcpp/rclcpp:
+    type: git
+    url: https://github.com/ros2/rclcpp.git
+    version: humble
+  
+  # ROS 2 C support library
+  rcl/rcl:
+    type: git
+    url: https://github.com/ros2/rcl.git
+    version: humble
+  
+  # ROS utilities
+  rcutils/rcutils:
+    type: git
+    url: https://github.com/ros2/rcutils.git
+    version: humble
+  
+  # ROS middleware interface
+  rmw/rmw:
+    type: git
+    url: https://github.com/ros2/rmw.git
+    version: humble
+  
+  # ROS middleware implementation
+  rmw_implementation/rmw_implementation:
+    type: git
+    url: https://github.com/ros2/rmw_implementation.git
+    version: humble
+  
+  # Fast DDS RMW implementation
+  rmw_fastrtps/rmw_fastrtps:
+    type: git
+    url: https://github.com/ros2/rmw_fastrtps.git
+    version: humble
+  
+  # Fast DDS
+  fastrtps/fastrtps:
+    type: git
+    url: https://github.com/eProsima/Fast-DDS.git
+    version: 2.10.x
+  
+  # Fast CDR
+  fastcdr/fastcdr:
+    type: git
+    url: https://github.com/eProsima/Fast-CDR.git
+    version: v1.0.27
+  
+  # ROS IDL typesupport
+  rosidl/rosidl:
+    type: git
+    url: https://github.com/ros2/rosidl.git
+    version: humble
+  
+  # ROS IDL defaults
+  rosidl_defaults/rosidl_defaults:
+    type: git
+    url: https://github.com/ros2/rosidl_defaults.git
+    version: humble
+  
+  # Common interfaces (std_msgs, etc.)
+  common_interfaces/common_interfaces:
+    type: git
+    url: https://github.com/ros2/common_interfaces.git
+    version: humble
+  
+  # Lifecycle
+  rcl_lifecycle/rcl_lifecycle:
+    type: git
+    url: https://github.com/ros2/rcl.git
+    version: humble
+  
+  # Logging
+  rcl_logging/rcl_logging:
+    type: git
+    url: https://github.com/ros2/rcl_logging.git
+    version: humble
+  
+  # Lifecycle messages
+  rcl_interfaces/rcl_interfaces:
+    type: git
+    url: https://github.com/ros2/rcl_interfaces.git
+    version: humble
+  
+  # Tracing
+  tracetools/ros2_tracing:
+    type: git
+    url: https://github.com/ros2/ros2_tracing.git
+    version: humble
+  
+  # ROS 2 unique identifier messages
+  unique_identifier_msgs/unique_identifier_msgs:
+    type: git
+    url: https://github.com/ros2/unique_identifier_msgs.git
+    version: humble

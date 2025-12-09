@@ -6,6 +6,17 @@ echo "=========================================="
 echo "Building ROS 2 Node for Unikraft"
 echo "=========================================="
 
+# Check if running in devcontainer
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+IN_DEVCONTAINER=false
+
+if [ -n "$REMOTE_CONTAINERS" ] || [ -n "$CODESPACES" ] || [ "$TERM_PROGRAM" = "vscode" ] || [ -f "/.dockerenv" ]; then
+    IN_DEVCONTAINER=true
+    echo "✓ Running inside devcontainer"
+else
+    echo "ℹ Running outside devcontainer"
+fi
+
 # Source ROS 2 environment
 if [ -f "/opt/ros/humble/setup.bash" ]; then
     source /opt/ros/humble/setup.bash
@@ -18,14 +29,97 @@ fi
 # Clean previous builds (optional)
 if [ "$1" = "clean" ]; then
     echo "Cleaning previous builds..."
-    rm -rf build install log
+    rm -rf build install log deps
     echo "✓ Cleaned build directories"
 fi
 
-# Build using colcon with static linking flags
+# Check if deps directory exists, if not, set it up
+if [ ! -d "deps/src" ]; then
+    echo ""
+    echo "=========================================="
+    echo "Setting up local ROS 2 workspace"
+    echo "=========================================="
+    
+    # Create deps workspace
+    mkdir -p deps/src
+    echo "✓ Created deps workspace"
+    
+    # Import ROS 2 source packages using vcs
+    echo ""
+    echo "Importing ROS 2 source packages..."
+    if [ ! -f "deps.repos" ]; then
+        echo "✗ deps.repos file not found"
+        exit 1
+    fi
+    
+    cd deps
+    vcs import src < ../deps.repos
+    if [ $? -eq 0 ]; then
+        echo "✓ Successfully imported ROS 2 source packages"
+    else
+        echo "✗ Failed to import source packages"
+        exit 1
+    fi
+    cd ..
+    
+    # Run rosdep install to ensure all dependencies are met
+    echo ""
+    echo "Installing dependencies with rosdep..."
+    if [ "$IN_DEVCONTAINER" = true ]; then
+        rosdep update || true
+    fi
+    
+    rosdep install --from-paths deps/src --ignore-src -r -y
+    if [ $? -eq 0 ]; then
+        echo "✓ Dependencies installed successfully"
+    else
+        echo "⚠ Some dependencies may not have been installed, continuing..."
+    fi
+    
+else
+    echo "✓ deps workspace already exists"
+fi
+
+# Build the deps workspace with static linking
+if [ ! -f "deps/install/setup.bash" ]; then
+    echo ""
+    echo "=========================================="
+    echo "Building deps workspace statically"
+    echo "=========================================="
+    
+    cd deps
+    colcon build \
+        --cmake-args \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+        -DBUILD_SHARED_LIBS=OFF \
+        --event-handlers console_direct+
+    
+    if [ $? -eq 0 ]; then
+        echo "✓ deps workspace built successfully"
+    else
+        echo "✗ deps workspace build failed"
+        exit 1
+    fi
+    cd ..
+else
+    echo "✓ deps workspace already built"
+fi
+
+# Source the deps workspace
 echo ""
+echo "Sourcing deps workspace..."
+source deps/install/setup.bash
+echo "✓ Sourced deps workspace"
+
+# Build the main package with static linking
+echo ""
+echo "=========================================="
+echo "Building unikraft_ros2 package"
+echo "=========================================="
 echo "Building static PIE binary with colcon..."
 colcon build \
+    --packages-select unikraft_ros2 \
     --cmake-args \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
