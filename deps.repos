@@ -59,13 +59,13 @@ repositories:
     url: https://github.com/ros2/rosidl_defaults.git
     version: humble
   
-  # Lifecycle messages and interfaces (lifecycle_msgs, std_msgs)
+  # Lifecycle messages and interfaces (contains lifecycle_msgs)
   rcl_interfaces:
     type: git
     url: https://github.com/ros2/rcl_interfaces.git
     version: humble
   
-  # Common interfaces (includes std_msgs, but not lifecycle_msgs)
+  # Common interfaces (contains std_msgs and other standard message types)
   common_interfaces:
     type: git
     url: https://github.com/ros2/common_interfaces.git
