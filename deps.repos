@@ -4,79 +4,85 @@ repositories:
     type: git
     url: https://github.com/ros2/rclcpp.git
     version: humble
-  
+
   # ROS 2 C support library (required by rclcpp)
   rcl:
     type: git
     url: https://github.com/ros2/rcl.git
     version: humble
-  
+
   # ROS utilities (required by rcl)
   rcutils:
     type: git
     url: https://github.com/ros2/rcutils.git
     version: humble
-  
+
   # ROS middleware interface (required by rcl)
   rmw:
     type: git
     url: https://github.com/ros2/rmw.git
     version: humble
-  
+
   # ROS middleware implementation (required for RMW)
   rmw_implementation:
     type: git
     url: https://github.com/ros2/rmw_implementation.git
     version: humble
-  
+
   # Fast DDS RMW implementation (default RMW for Humble)
   rmw_fastrtps:
     type: git
     url: https://github.com/ros2/rmw_fastrtps.git
     version: humble
-  
+
   # Fast DDS (required by rmw_fastrtps)
   Fast-DDS:
     type: git
     url: https://github.com/eProsima/Fast-DDS.git
     version: 2.10.x
-  
+
   # Fast CDR (required by Fast-DDS)
   Fast-CDR:
     type: git
     url: https://github.com/eProsima/Fast-CDR.git
     version: v1.0.27
-  
+
+  # Asio (required by Fast-DDS for networking)
+  asio:
+    type: git
+    url: https://github.com/chriskohlhoff/asio.git
+    version: asio-1-24-0
+
   # ROS IDL typesupport (required for message generation)
   rosidl:
     type: git
     url: https://github.com/ros2/rosidl.git
     version: humble
-  
+
   # ROS IDL defaults (required for rosidl)
   rosidl_defaults:
     type: git
     url: https://github.com/ros2/rosidl_defaults.git
     version: humble
-  
+
   # Lifecycle messages and interfaces (lifecycle_msgs, std_msgs)
   rcl_interfaces:
     type: git
     url: https://github.com/ros2/rcl_interfaces.git
     version: humble
-  
+
   # Common interfaces (includes std_msgs, but not lifecycle_msgs)
   common_interfaces:
     type: git
     url: https://github.com/ros2/common_interfaces.git
     version: humble
-  
+
   # Logging (required by rcl)
   rcl_logging:
     type: git
     url: https://github.com/ros2/rcl_logging.git
     version: humble
-  
+
   # ROS 2 unique identifier messages (required by lifecycle)
   unique_identifier_msgs:
     type: git
