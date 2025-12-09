@@ -196,6 +196,19 @@ kraft run --initrd .unikraft/initrd --memory 1G  # Increase to 1GB
 
 ## Troubleshooting
 
+### Before Running build.sh
+
+Run the validation script to check your environment:
+```bash
+./test_build_logic.sh
+```
+
+This checks for:
+- Required files
+- Script syntax
+- Tool availability
+- Network connectivity to ROS 2 repositories
+
 ### Build Fails with "Shared library not found" Errors
 
 The script now builds ROS 2 libraries from source in the `deps/` workspace to support static linking. If you encounter issues:
@@ -210,6 +223,28 @@ The script now builds ROS 2 libraries from source in the `deps/` workspace to su
    ```bash
    sudo apt-get install python3-vcstool python3-rosdep
    ```
+
+### Build Fails with apt "Unmet dependencies"
+
+The script now automatically fixes broken apt dependencies. If you still encounter issues:
+
+```bash
+sudo apt --fix-broken install -y
+sudo apt-get update
+sudo apt-get upgrade -y
+```
+
+### Build Fails During deps Workspace Build
+
+Check the build logs:
+```bash
+# View failed package logs
+cat deps/log/latest_build/*/stderr.log
+
+# Try building specific packages
+cd deps
+colcon build --packages-select <package_name>
+```
 
 ### Build Fails with Linking Errors
 
