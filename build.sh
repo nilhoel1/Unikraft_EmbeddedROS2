@@ -81,9 +81,10 @@ if [ ! -d "deps/src" ]; then
     if vcs import src < ../deps.repos; then
         echo "✓ Successfully imported ROS 2 source packages"
         echo "  Packages imported:"
+        pkg_count=$(ls -1 src/ 2>/dev/null | wc -l)
         ls -1 src/ 2>/dev/null | head -10 | sed 's/^/    - /'
-        if [ $(ls -1 src/ 2>/dev/null | wc -l) -gt 10 ]; then
-            echo "    ... and $(($(ls -1 src/ 2>/dev/null | wc -l) - 10)) more"
+        if [ $pkg_count -gt 10 ]; then
+            echo "    ... and $(($pkg_count - 10)) more"
         fi
     else
         echo "✗ Failed to import source packages"
@@ -154,14 +155,17 @@ if [ ! -f "deps/install/setup.bash" ]; then
     echo "=========================================="
     
     cd deps
+    # Allow configuring parallel workers via environment variable
+    PARALLEL_WORKERS="${COLCON_PARALLEL_WORKERS:-4}"
     echo "Building deps workspace (this may take 15-30 minutes)..."
+    echo "  Using $PARALLEL_WORKERS parallel workers (set COLCON_PARALLEL_WORKERS to override)"
     if colcon build \
         --cmake-args \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
         -DBUILD_SHARED_LIBS=OFF \
         --event-handlers console_direct+ \
-        --parallel-workers 4; then
+        --parallel-workers $PARALLEL_WORKERS; then
         echo "✓ deps workspace built successfully"
     else
         echo "✗ deps workspace build failed"
