@@ -1,0 +1,32 @@
+{
+  "name": "ROS 2 Humble + Unikraft + QEMU",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "runArgs": [
+    "--privileged",
+    "--network=host",
+    "--cap-add=NET_ADMIN",
+    "--device=/dev/kvm"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools",
+        "ms-python.python",
+        "ms-iot.vscode-ros",
+        "twxs.cmake"
+      ],
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash",
+        "cmake.configureOnOpen": false
+      }
+    }
+  },
+  "postCreateCommand": "rosdep update",
+  "remoteUser": "root"
+}
