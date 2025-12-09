@@ -26,7 +26,7 @@ RUN apt-get update && apt-get install -y \
 
 # Install KraftKit
 RUN wget https://get.kraftkit.sh -O /tmp/install-kraftkit.sh && \
-    sh /tmp/install-kraftkit.sh && \
+    sh /tmp/install-kraftkit.sh -y && \
     rm /tmp/install-kraftkit.sh
 
 # Add kraft to PATH
