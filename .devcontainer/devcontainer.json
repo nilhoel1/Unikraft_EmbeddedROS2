@@ -18,7 +18,7 @@
         "ms-vscode.cpptools",
         "ms-vscode.cmake-tools",
         "ms-python.python",
-        "ms-iot.vscode-ros",
+        "ms-iot.vscode-ros2",
         "twxs.cmake"
       ],
       "settings": {
