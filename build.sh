@@ -54,11 +54,11 @@ if [ ! -d "deps/src" ]; then
     echo "=========================================="
     echo "Setting up local ROS 2 workspace"
     echo "=========================================="
-    
+
     # Create deps workspace
     mkdir -p deps/src
     echo "✓ Created deps workspace"
-    
+
     # Import ROS 2 source packages using vcs
     echo ""
     echo "Importing ROS 2 source packages..."
@@ -75,7 +75,7 @@ if [ ! -d "deps/src" ]; then
     else
         echo "✓ Using existing deps.repos file"
     fi
-    
+
     cd deps
     echo "Importing repositories into deps/src..."
     if vcs import src < ../deps.repos; then
@@ -92,11 +92,11 @@ if [ ! -d "deps/src" ]; then
         exit 1
     fi
     cd ..
-    
+
     # Run rosdep install to ensure all dependencies are met
     echo ""
     echo "Installing dependencies with rosdep..."
-    
+
     # Check if rosdep is initialized
     if [ ! -f "/etc/ros/rosdep/sources.list.d/20-default.list" ]; then
         echo "⚠ rosdep not initialized, initializing..."
@@ -107,7 +107,7 @@ if [ ! -d "deps/src" ]; then
             echo "ℹ rosdep init returned non-zero (may already be initialized)"
         fi
     fi
-    
+
     # Always run rosdep update to ensure sources are current
     echo "Updating rosdep sources..."
     if rosdep update; then
@@ -115,7 +115,7 @@ if [ ! -d "deps/src" ]; then
     else
         echo "⚠ rosdep update failed, continuing anyway..."
     fi
-    
+
     # Fix any broken apt dependencies before rosdep install
     echo ""
     echo "Checking and fixing apt dependencies..."
@@ -125,7 +125,7 @@ if [ ! -d "deps/src" ]; then
         else
             echo "⚠ apt --fix-broken install had issues, continuing..."
         fi
-        
+
         # Update apt cache to ensure latest package information
         echo "Updating apt package cache..."
         if sudo apt-get update; then
@@ -136,13 +136,13 @@ if [ ! -d "deps/src" ]; then
     else
         echo "⚠ sudo not available, skipping apt fixes"
     fi
-    
+
     if rosdep install --from-paths deps/src --ignore-src -r -y; then
         echo "✓ Dependencies installed successfully"
     else
         echo "⚠ Some dependencies may not have been installed, continuing..."
     fi
-    
+
 else
     echo "✓ deps workspace already exists"
 fi
@@ -153,7 +153,7 @@ if [ ! -f "deps/install/setup.bash" ]; then
     echo "=========================================="
     echo "Building deps workspace statically"
     echo "=========================================="
-    
+
     cd deps
     # Allow configuring parallel workers via environment variable
     PARALLEL_WORKERS="${COLCON_PARALLEL_WORKERS:-4}"
@@ -180,8 +180,20 @@ fi
 # Source the deps workspace
 echo ""
 echo "Sourcing deps workspace..."
+# Unset the system ROS environment to avoid conflicts
+if [ -n "$AMENT_PREFIX_PATH" ]; then
+    echo "  Clearing system ROS environment variables..."
+    unset AMENT_PREFIX_PATH
+    unset CMAKE_PREFIX_PATH
+    unset COLCON_PREFIX_PATH
+    unset LD_LIBRARY_PATH
+    unset PATH
+    unset PYTHONPATH
+    # Restore essential PATH
+    export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+fi
 source deps/install/setup.bash
-echo "✓ Sourced deps workspace"
+echo "✓ Sourced deps workspace (system ROS cleared)"
 
 # Set RMW implementation to Zenoh
 export RMW_IMPLEMENTATION=rmw_zenoh_cpp
@@ -200,7 +212,8 @@ colcon build \
     -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
     -DCMAKE_EXE_LINKER_FLAGS="-static-pie" \
     -DCMAKE_CXX_FLAGS="-fPIE" \
-    -DBUILD_SHARED_LIBS=OFF
+    -DBUILD_SHARED_LIBS=OFF \
+    -DCMAKE_PREFIX_PATH="$(pwd)/deps/install"
 
 if [ $? -eq 0 ]; then
     echo "✓ Build successful"

@@ -39,13 +39,13 @@ repositories:
   zenoh-c:
     type: git
     url: https://github.com/eclipse-zenoh/zenoh-c.git
-    version: 0.11.0.0
+    version: 1.0.4
 
   # Zenoh Rust (core library, required by zenoh-c)
   zenoh:
     type: git
     url: https://github.com/eclipse-zenoh/zenoh.git
-    version: 0.11.0
+    version: 1.0.4
 
   # ROS IDL typesupport (required for message generation)
   rosidl:
