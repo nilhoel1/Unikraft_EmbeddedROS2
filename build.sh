@@ -64,19 +64,30 @@ if [ ! -d "deps/src" ]; then
     echo "Importing ROS 2 source packages..."
     if [ ! -f "deps.repos" ]; then
         echo "⚠ deps.repos file not found, downloading official ROS 2 Humble repos file..."
+        echo "  Note: This will download many packages and take longer to build."
+        echo "  For faster builds, use the curated deps.repos from the repository."
         if curl -fsSL https://raw.githubusercontent.com/ros2/ros2/humble/ros2.repos -o deps.repos; then
             echo "✓ Downloaded deps.repos from ROS 2 Humble repository"
         else
             echo "✗ Failed to download deps.repos"
             exit 1
         fi
+    else
+        echo "✓ Using existing deps.repos file"
     fi
     
     cd deps
+    echo "Importing repositories into deps/src..."
     if vcs import src < ../deps.repos; then
         echo "✓ Successfully imported ROS 2 source packages"
+        echo "  Packages imported:"
+        ls -1 src/ 2>/dev/null | head -10 | sed 's/^/    - /'
+        if [ $(ls -1 src/ 2>/dev/null | wc -l) -gt 10 ]; then
+            echo "    ... and $(($(ls -1 src/ 2>/dev/null | wc -l) - 10)) more"
+        fi
     else
         echo "✗ Failed to import source packages"
+        echo "  Check that vcs is installed and deps.repos is valid"
         exit 1
     fi
     cd ..
@@ -143,15 +154,18 @@ if [ ! -f "deps/install/setup.bash" ]; then
     echo "=========================================="
     
     cd deps
+    echo "Building deps workspace (this may take 15-30 minutes)..."
     if colcon build \
         --cmake-args \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
         -DBUILD_SHARED_LIBS=OFF \
-        --event-handlers console_direct+; then
+        --event-handlers console_direct+ \
+        --parallel-workers 4; then
         echo "✓ deps workspace built successfully"
     else
         echo "✗ deps workspace build failed"
+        echo "  Check the log files in deps/log/ for details"
         exit 1
     fi
     cd ..
