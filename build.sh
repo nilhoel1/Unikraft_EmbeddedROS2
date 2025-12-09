@@ -63,8 +63,13 @@ if [ ! -d "deps/src" ]; then
     echo ""
     echo "Importing ROS 2 source packages..."
     if [ ! -f "deps.repos" ]; then
-        echo "✗ deps.repos file not found"
-        exit 1
+        echo "⚠ deps.repos file not found, downloading official ROS 2 Humble repos file..."
+        if curl -fsSL https://raw.githubusercontent.com/ros2/ros2/humble/ros2.repos -o deps.repos; then
+            echo "✓ Downloaded deps.repos from ROS 2 Humble repository"
+        else
+            echo "✗ Failed to download deps.repos"
+            exit 1
+        fi
     fi
     
     cd deps
@@ -79,8 +84,23 @@ if [ ! -d "deps/src" ]; then
     # Run rosdep install to ensure all dependencies are met
     echo ""
     echo "Installing dependencies with rosdep..."
-    if [ "$IN_DEVCONTAINER" = true ]; then
-        rosdep update || true
+    
+    # Check if rosdep is initialized
+    if [ ! -f "/etc/ros/rosdep/sources.list.d/20-default.list" ]; then
+        echo "⚠ rosdep not initialized, initializing..."
+        if sudo rosdep init; then
+            echo "✓ rosdep initialized successfully"
+        else
+            echo "⚠ Failed to initialize rosdep (may already be initialized)"
+        fi
+    fi
+    
+    # Always run rosdep update to ensure sources are current
+    echo "Updating rosdep sources..."
+    if rosdep update; then
+        echo "✓ rosdep updated successfully"
+    else
+        echo "⚠ rosdep update failed, continuing anyway..."
     fi
     
     if rosdep install --from-paths deps/src --ignore-src -r -y; then
