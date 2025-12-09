@@ -107,18 +107,22 @@ if [ ! -d "deps/src" ]; then
     # Fix any broken apt dependencies before rosdep install
     echo ""
     echo "Checking and fixing apt dependencies..."
-    if sudo apt --fix-broken install -y; then
-        echo "✓ apt dependencies fixed"
+    if command -v sudo &> /dev/null; then
+        if sudo apt --fix-broken install -y; then
+            echo "✓ apt dependencies fixed"
+        else
+            echo "⚠ apt --fix-broken install had issues, continuing..."
+        fi
+        
+        # Update apt cache to ensure latest package information
+        echo "Updating apt package cache..."
+        if sudo apt-get update; then
+            echo "✓ apt cache updated"
+        else
+            echo "⚠ apt-get update had issues, continuing..."
+        fi
     else
-        echo "⚠ apt --fix-broken install had issues, continuing..."
-    fi
-    
-    # Update apt cache to ensure latest package information
-    echo "Updating apt package cache..."
-    if sudo apt-get update; then
-        echo "✓ apt cache updated"
-    else
-        echo "⚠ apt-get update had issues, continuing..."
+        echo "⚠ sudo not available, skipping apt fixes"
     fi
     
     if rosdep install --from-paths deps/src --ignore-src -r -y; then
