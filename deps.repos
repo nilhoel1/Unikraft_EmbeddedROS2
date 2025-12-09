@@ -1,0 +1,84 @@
+repositories:
+  # Core ROS 2 Client Library (includes rclcpp and rclcpp_lifecycle)
+  rclcpp:
+    type: git
+    url: https://github.com/ros2/rclcpp.git
+    version: jazzy
+
+  # ROS 2 C support library (required by rclcpp)
+  rcl:
+    type: git
+    url: https://github.com/ros2/rcl.git
+    version: jazzy
+
+  # ROS utilities (required by rcl)
+  rcutils:
+    type: git
+    url: https://github.com/ros2/rcutils.git
+    version: jazzy
+
+  # ROS middleware interface (required by rcl)
+  rmw:
+    type: git
+    url: https://github.com/ros2/rmw.git
+    version: jazzy
+
+  # ROS middleware implementation (required for RMW)
+  rmw_implementation:
+    type: git
+    url: https://github.com/ros2/rmw_implementation.git
+    version: jazzy
+
+  # Zenoh RMW implementation (lightweight, open-source middleware)
+  rmw_zenoh:
+    type: git
+    url: https://github.com/ros2/rmw_zenoh.git
+    version: rolling
+
+  # Zenoh C library (required by rmw_zenoh)
+  zenoh-c:
+    type: git
+    url: https://github.com/eclipse-zenoh/zenoh-c.git
+    version: 1.0.4
+
+  # Zenoh Rust (core library, required by zenoh-c)
+  zenoh:
+    type: git
+    url: https://github.com/eclipse-zenoh/zenoh.git
+    version: 1.0.4
+
+  # ROS IDL typesupport (required for message generation)
+  rosidl:
+    type: git
+    url: https://github.com/ros2/rosidl.git
+    version: jazzy
+
+  # ROS IDL defaults (required for rosidl)
+  rosidl_defaults:
+    type: git
+    url: https://github.com/ros2/rosidl_defaults.git
+    version: jazzy
+
+  # Lifecycle messages and interfaces (contains lifecycle_msgs)
+  rcl_interfaces:
+    type: git
+    url: https://github.com/ros2/rcl_interfaces.git
+    version: jazzy
+
+  # Common interfaces (contains std_msgs and other standard message types)
+  common_interfaces:
+    type: git
+    url: https://github.com/ros2/common_interfaces.git
+    version: jazzy
+
+  # Logging (required by rcl)
+  rcl_logging:
+    type: git
+    url: https://github.com/ros2/rcl_logging.git
+    version: jazzy
+
+  # ROS 2 unique identifier messages (required by lifecycle)
+  unique_identifier_msgs:
+    type: git
+    url: https://github.com/ros2/unique_identifier_msgs.git
+    version: jazzy

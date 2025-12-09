@@ -1,5 +1,5 @@
-# Use ROS 2 Humble base image
-FROM osrf/ros:humble-desktop-full
+# Use ROS 2 Jazzy base image
+FROM osrf/ros:jazzy-desktop-full
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -22,7 +22,21 @@ RUN apt-get update && apt-get install -y \
     qemu-utils \
     socat \
     gdb \
+    apt-transport-https \
+    gnupg \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Bazel
+RUN curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor >bazel-archive-keyring.gpg && \
+    mv bazel-archive-keyring.gpg /usr/share/keyrings/bazel-archive-keyring.gpg && \
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/bazel-archive-keyring.gpg] https://storage.googleapis.com/bazel-apt stable jdk1.8" | tee /etc/apt/sources.list.d/bazel.list && \
+    apt-get update && apt-get install -y bazel && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Buildifier (Bazel formatter, optional but helpful)
+RUN BUILDIFIER_VERSION=6.4.0 && \
+    wget https://github.com/bazelbuild/buildtools/releases/download/v${BUILDIFIER_VERSION}/buildifier-linux-amd64 -O /usr/bin/buildifier && \
+    chmod +x /usr/bin/buildifier
 
 # Install KraftKit
 RUN wget https://get.kraftkit.sh -O /tmp/install-kraftkit.sh && \
@@ -31,6 +45,10 @@ RUN wget https://get.kraftkit.sh -O /tmp/install-kraftkit.sh && \
 
 # Add kraft to PATH
 ENV PATH="/root/.local/bin:${PATH}"
+
+# Install Rust (required for building Zenoh)
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Initialize rosdep
 RUN rosdep update
@@ -42,7 +60,7 @@ RUN mkdir -p /workspace/src
 WORKDIR /workspace
 
 # Source ROS 2 setup
-RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
+RUN echo "source /opt/ros/jazzy/setup.bash" >> /root/.bashrc
 
 # Default command
 CMD ["/bin/bash"]

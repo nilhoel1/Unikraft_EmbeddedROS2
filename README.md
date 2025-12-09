@@ -1,10 +1,11 @@
 # ROS 2 on Unikraft with app-elfloader
 
-This repository demonstrates running ROS 2 Humble on Unikraft using the app-elfloader. The application features a LifecycleNode with MultiThreadedExecutor, built as a static PIE binary for seamless integration with Unikraft's lightweight unikernel architecture.
+This repository demonstrates running ROS 2 Jazzy on Unikraft using the app-elfloader. The application features a LifecycleNode with MultiThreadedExecutor, built as a static PIE binary for seamless integration with Unikraft's lightweight unikernel architecture.
 
 ## Features
 
-- **ROS 2 Humble**: Latest LTS release of ROS 2
+- **ROS 2 Jazzy**: Latest release of ROS 2
+- **Zenoh Middleware**: Lightweight, open-source pub/sub middleware (replaces Fast-DDS)
 - **Lifecycle Node**: Implements ROS 2 lifecycle management
 - **MultiThreadedExecutor**: Enables concurrent callback execution
 - **Static PIE Binary**: Built with `-static-pie` for Unikraft compatibility
@@ -54,19 +55,40 @@ This repository demonstrates running ROS 2 Humble on Unikraft using the app-elfl
 1. Open this repository in VS Code
 2. When prompted, click "Reopen in Container"
 3. Wait for the container to build (includes ROS 2, KraftKit, QEMU)
-4. Inside the container, run:
+4. Inside the container, build the application:
    ```bash
    ./build.sh
    ```
+5. Or run the application directly (without Unikraft):
+   ```bash
+   ./start_app.sh
+   ```
 
-### Option 2: Manual Setup
+### Option 2: Using Bazel (Static PIE Binary)
+
+For advanced users who need full control over static linking:
+
+1. Build dependencies first:
+   ```bash
+   ./build.sh  # Builds deps workspace
+   ```
+2. Build with Bazel:
+   ```bash
+   bazel build //:unikraft_ros2_node
+   ```
+3. See [BAZEL_BUILD.md](BAZEL_BUILD.md) for detailed instructions
+
+The Bazel build produces a fully static PIE binary with rmw_zenoh force-registered at link time (no dlopen required).
+
+### Option 3: Manual Setup
 
 If you prefer not to use devcontainers:
 
-1. Install ROS 2 Humble: https://docs.ros.org/en/humble/Installation.html
+1. Install ROS 2 Jazzy: https://docs.ros.org/en/jazzy/Installation.html
 2. Install KraftKit: https://unikraft.org/docs/cli/
 3. Install QEMU: `sudo apt-get install qemu-system-x86`
-4. Run the build script:
+4. Install Rust (required for Zenoh): `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
+5. Run the build script:
    ```bash
    ./build.sh
    ```
@@ -75,16 +97,28 @@ If you prefer not to use devcontainers:
 
 The `build.sh` script performs the following steps:
 
-1. **Source ROS 2 environment** (`/opt/ros/humble/setup.bash`)
-2. **Build with colcon**:
+1. **Check environment and tools**:
+   - Detect if running in devcontainer
+   - Verify vcs and rosdep tools are available
+   - Source ROS 2 environment (`/opt/ros/jazzy/setup.bash`)
+2. **Set up local ROS 2 workspace** (first run only):
+   - Create `deps/` workspace directory
+   - Use `vcs` to import minimal ROS 2 source packages from `deps.repos`
+   - Includes only: rclcpp, rcl, rmw, Zenoh (rmw_zenoh), rosidl, common_interfaces, rcl_interfaces, and their direct dependencies
+   - Run `rosdep install` to ensure all dependencies are met
+3. **Build dependencies statically** (first run only):
+   - Build the `deps/` workspace with `-DBUILD_SHARED_LIBS=OFF` for static linking
+   - Source the built deps workspace
+   - Set RMW_IMPLEMENTATION=rmw_zenoh_cpp
+4. **Build the main package**:
    - Compile the ROS 2 node as a static PIE binary
-   - Link all RMW libraries statically to avoid dlopen
-3. **Prepare initrd**:
+   - Link all RMW libraries (Zenoh) statically to avoid dlopen
+5. **Prepare initrd**:
    - Copy the binary to `.unikraft/initrd/`
-4. **Build Unikraft kernel**:
+6. **Build Unikraft kernel**:
    - Configure app-elfloader with lwip and posix-scheduler
    - Build the unikernel
-5. **Run with kraft**:
+7. **Run with kraft**:
    - Launch QEMU with the Unikraft kernel
    - Load the ROS 2 binary from initrd
 
@@ -95,14 +129,46 @@ The `build.sh` script performs the following steps:
 ├── .devcontainer/
 │   ├── devcontainer.json    # VS Code devcontainer configuration
 │   └── Dockerfile           # Container with ROS 2 + KraftKit + QEMU
+├── deps/                    # Local ROS 2 workspace (built statically, auto-generated)
+│   ├── src/                 # ROS 2 source packages (from deps.repos)
+│   ├── build/               # Build artifacts for dependencies
+│   └── install/             # Statically built ROS 2 libraries
 ├── src/
 │   └── main.cpp            # ROS 2 LifecycleNode implementation
 ├── CMakeLists.txt          # Build configuration with -static-pie
 ├── package.xml             # ROS 2 package metadata
+├── deps.repos              # vcstool configuration for ROS 2 dependencies (Zenoh-based)
 ├── kraft.yaml              # Unikraft configuration (app-elfloader, lwip, posix)
-├── build.sh                # Build and run script
+├── build.sh                # Build and run script (with Unikraft)
+├── start_app.sh            # Startup script to run application directly (without Unikraft)
 └── README.md               # This file
 ```
+
+## Running the Application
+
+### Option 1: Run with Startup Script (Recommended for Testing)
+
+The simplest way to test the application:
+
+```bash
+./start_app.sh
+```
+
+This script:
+- Sources ROS 2 environment
+- Sets RMW_IMPLEMENTATION=rmw_zenoh_cpp
+- Runs the binary directly (without Unikraft)
+- Displays application output
+
+### Option 2: Run with build.sh (Includes Unikraft)
+
+For the full Unikraft experience:
+
+```bash
+./build.sh
+```
+
+This builds everything and runs the application inside Unikraft with QEMU.
 
 ## Configuration Details
 
@@ -181,11 +247,61 @@ kraft run --initrd .unikraft/initrd --memory 1G  # Increase to 1GB
 
 ## Troubleshooting
 
+### Before Running build.sh
+
+Run the validation script to check your environment:
+```bash
+./test_build_logic.sh
+```
+
+This checks for:
+- Required files
+- Script syntax
+- Tool availability
+- Network connectivity to ROS 2 repositories
+
+### Build Fails with "Shared library not found" Errors
+
+The script now builds ROS 2 libraries from source in the `deps/` workspace to support static linking. If you encounter issues:
+
+1. Clean and rebuild:
+   ```bash
+   ./build.sh clean
+   ./build.sh
+   ```
+
+2. Ensure vcstool and rosdep are installed:
+   ```bash
+   sudo apt-get install python3-vcstool python3-rosdep
+   ```
+
+### Build Fails with apt "Unmet dependencies"
+
+The script now automatically fixes broken apt dependencies. If you still encounter issues:
+
+```bash
+sudo apt --fix-broken install -y
+sudo apt-get update
+sudo apt-get upgrade -y
+```
+
+### Build Fails During deps Workspace Build
+
+Check the build logs:
+```bash
+# View failed package logs
+cat deps/log/latest_build/*/stderr.log
+
+# Try building specific packages
+cd deps
+colcon build --packages-select <package_name>
+```
+
 ### Build Fails with Linking Errors
 
 Ensure all ROS 2 dependencies are installed:
 ```bash
-rosdep install --from-paths src --ignore-src -r -y
+rosdep install --from-paths deps/src src --ignore-src -r -y
 ```
 
 ### Binary Not Loaded in Unikraft
@@ -250,7 +366,7 @@ Apache-2.0
 
 ## Resources
 
-- [ROS 2 Documentation](https://docs.ros.org/en/humble/)
+- [ROS 2 Documentation](https://docs.ros.org/en/jazzy/)
 - [Unikraft Documentation](https://unikraft.org/docs/)
 - [KraftKit CLI](https://unikraft.org/docs/cli/)
 - [app-elfloader](https://github.com/unikraft/app-elfloader)
@@ -258,7 +374,7 @@ Apache-2.0
 ## Acknowledgments
 
 This project combines:
-- **ROS 2 Humble** by Open Robotics
+- **ROS 2 Jazzy** by Open Robotics
 - **Unikraft** unikernel platform
 - **lwip** lightweight TCP/IP stack
 - **app-elfloader** for binary loading
