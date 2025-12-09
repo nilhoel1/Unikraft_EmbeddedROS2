@@ -75,16 +75,26 @@ If you prefer not to use devcontainers:
 
 The `build.sh` script performs the following steps:
 
-1. **Source ROS 2 environment** (`/opt/ros/humble/setup.bash`)
-2. **Build with colcon**:
+1. **Check environment and tools**:
+   - Detect if running in devcontainer
+   - Verify vcs and rosdep tools are available
+   - Source ROS 2 environment (`/opt/ros/humble/setup.bash`)
+2. **Set up local ROS 2 workspace** (first run only):
+   - Create `deps/` workspace directory
+   - Use `vcs` to import ROS 2 source packages (rclcpp, rcl, rmw, etc.) from `deps.repos`
+   - Run `rosdep install` to ensure all dependencies are met
+3. **Build dependencies statically** (first run only):
+   - Build the `deps/` workspace with `-DBUILD_SHARED_LIBS=OFF` for static linking
+   - Source the built deps workspace
+4. **Build the main package**:
    - Compile the ROS 2 node as a static PIE binary
    - Link all RMW libraries statically to avoid dlopen
-3. **Prepare initrd**:
+5. **Prepare initrd**:
    - Copy the binary to `.unikraft/initrd/`
-4. **Build Unikraft kernel**:
+6. **Build Unikraft kernel**:
    - Configure app-elfloader with lwip and posix-scheduler
    - Build the unikernel
-5. **Run with kraft**:
+7. **Run with kraft**:
    - Launch QEMU with the Unikraft kernel
    - Load the ROS 2 binary from initrd
 
@@ -95,10 +105,15 @@ The `build.sh` script performs the following steps:
 ├── .devcontainer/
 │   ├── devcontainer.json    # VS Code devcontainer configuration
 │   └── Dockerfile           # Container with ROS 2 + KraftKit + QEMU
+├── deps/                    # Local ROS 2 workspace (built statically, auto-generated)
+│   ├── src/                 # ROS 2 source packages (from deps.repos)
+│   ├── build/               # Build artifacts for dependencies
+│   └── install/             # Statically built ROS 2 libraries
 ├── src/
 │   └── main.cpp            # ROS 2 LifecycleNode implementation
 ├── CMakeLists.txt          # Build configuration with -static-pie
 ├── package.xml             # ROS 2 package metadata
+├── deps.repos              # vcstool configuration for ROS 2 dependencies
 ├── kraft.yaml              # Unikraft configuration (app-elfloader, lwip, posix)
 ├── build.sh                # Build and run script
 └── README.md               # This file
@@ -181,11 +196,26 @@ kraft run --initrd .unikraft/initrd --memory 1G  # Increase to 1GB
 
 ## Troubleshooting
 
+### Build Fails with "Shared library not found" Errors
+
+The script now builds ROS 2 libraries from source in the `deps/` workspace to support static linking. If you encounter issues:
+
+1. Clean and rebuild:
+   ```bash
+   ./build.sh clean
+   ./build.sh
+   ```
+
+2. Ensure vcstool and rosdep are installed:
+   ```bash
+   sudo apt-get install python3-vcstool python3-rosdep
+   ```
+
 ### Build Fails with Linking Errors
 
 Ensure all ROS 2 dependencies are installed:
 ```bash
-rosdep install --from-paths src --ignore-src -r -y
+rosdep install --from-paths deps/src src --ignore-src -r -y
 ```
 
 ### Binary Not Loaded in Unikraft
