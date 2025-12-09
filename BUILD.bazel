@@ -1,0 +1,87 @@
+# Bazel BUILD file for ROS 2 node with static rmw_zenoh
+# This builds a static PIE binary that force-registers rmw_zenoh without dlopen
+
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+
+# Static RMW registration stub
+# This forces rmw_zenoh to be registered at link time without dlopen
+cc_library(
+    name = "rmw_zenoh_static_registration",
+    srcs = ["src/rmw_zenoh_static_stub.cpp"],
+    hdrs = [],
+    deps = [
+        "@ros2_rmw//:rmw",
+        "@ros2_rmw_zenoh//:rmw_zenoh_cpp",
+    ],
+    alwayslink = True,  # Force linking even if symbols not directly referenced
+    linkstatic = True,
+)
+
+# Main ROS 2 node binary
+cc_binary(
+    name = "unikraft_ros2_node",
+    srcs = ["src/main.cpp"],
+    deps = [
+        ":rmw_zenoh_static_registration",  # Include static RMW registration
+        "@ros2_rclcpp//:rclcpp",
+        "@ros2_rclcpp//:rclcpp_lifecycle",
+        "@ros2_rcl_interfaces//:lifecycle_msgs",
+        "@ros2_common_interfaces//:std_msgs",
+    ],
+    copts = [
+        "-fPIE",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-std=c++17",
+    ],
+    linkopts = [
+        "-static-pie",
+        "-static-libgcc",
+        "-static-libstdc++",
+        "-pthread",
+        "-lrt",
+        # Force reference to rmw_zenoh symbols to prevent dead code elimination
+        "-Wl,--whole-archive",
+        "-Wl,--no-as-needed",
+    ],
+    linkstatic = True,  # Build completely static binary
+    visibility = ["//visibility:public"],
+)
+
+# Alternative: Direct symbol forcing (if needed)
+# This can be used if the above doesn't work
+cc_binary(
+    name = "unikraft_ros2_node_alt",
+    srcs = [
+        "src/main.cpp",
+        "src/rmw_zenoh_static_stub.cpp",  # Inline the stub
+    ],
+    deps = [
+        "@ros2_rclcpp//:rclcpp",
+        "@ros2_rclcpp//:rclcpp_lifecycle",
+        "@ros2_rcl_interfaces//:lifecycle_msgs",
+        "@ros2_common_interfaces//:std_msgs",
+        "@ros2_rmw//:rmw",
+        "@ros2_rmw_zenoh//:rmw_zenoh_cpp",
+    ],
+    copts = [
+        "-fPIE",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-std=c++17",
+        "-DRMW_STATIC_REGISTRATION",  # Define macro for conditional compilation
+    ],
+    linkopts = [
+        "-static-pie",
+        "-static-libgcc",
+        "-static-libstdc++",
+        "-pthread",
+        "-lrt",
+        "-Wl,--whole-archive",
+        "-Wl,--no-as-needed",
+    ],
+    linkstatic = True,
+    visibility = ["//visibility:public"],
+)

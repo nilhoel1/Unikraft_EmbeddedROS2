@@ -64,7 +64,23 @@ This repository demonstrates running ROS 2 Jazzy on Unikraft using the app-elflo
    ./start_app.sh
    ```
 
-### Option 2: Manual Setup
+### Option 2: Using Bazel (Static PIE Binary)
+
+For advanced users who need full control over static linking:
+
+1. Build dependencies first:
+   ```bash
+   ./build.sh  # Builds deps workspace
+   ```
+2. Build with Bazel:
+   ```bash
+   bazel build //:unikraft_ros2_node
+   ```
+3. See [BAZEL_BUILD.md](BAZEL_BUILD.md) for detailed instructions
+
+The Bazel build produces a fully static PIE binary with rmw_zenoh force-registered at link time (no dlopen required).
+
+### Option 3: Manual Setup
 
 If you prefer not to use devcontainers:
 

@@ -4,6 +4,13 @@ install/
 log/
 deps/
 
+# Bazel build artifacts
+bazel-*
+.bazel-*
+bazel-bin/
+bazel-out/
+bazel-testlogs/
+
 # Unikraft build artifacts
 .unikraft/
 .kraft/

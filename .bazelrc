@@ -1,0 +1,42 @@
+# Bazel configuration for static PIE ROS 2 binary with rmw_zenoh
+
+# Common C++ flags
+build --cxxopt=-std=c++17
+build --cxxopt=-fPIE
+build --cxxopt=-Wall
+build --cxxopt=-Wextra
+
+# Static linking configuration
+build --linkopt=-static-pie
+build --linkopt=-static-libgcc
+build --linkopt=-static-libstdc++
+build --linkopt=-pthread
+build --linkopt=-lrt
+
+# Force linking of rmw_zenoh symbols (prevents dead code elimination)
+build --linkopt=-Wl,--whole-archive
+build --linkopt=-Wl,--no-as-needed
+build --linkopt=-Wl,-u,__rmw_zenoh_static_registration_anchor
+
+# Ensure static linking
+build --linkstatic=True
+
+# Optimization flags for release builds
+build:release --copt=-O3
+build:release --copt=-DNDEBUG
+
+# Debug flags
+build:debug --copt=-g
+build:debug --copt=-O0
+build:debug --strip=never
+
+# Default to release mode
+build --config=release
+
+# Platform-specific settings
+build:linux --cxxopt=-fPIC
+build:linux --linkopt=-Wl,-z,relro,-z,now
+
+# Verbose output for debugging
+build --verbose_failures
+build --sandbox_debug
