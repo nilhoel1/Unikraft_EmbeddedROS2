@@ -81,7 +81,8 @@ The `build.sh` script performs the following steps:
    - Source ROS 2 environment (`/opt/ros/humble/setup.bash`)
 2. **Set up local ROS 2 workspace** (first run only):
    - Create `deps/` workspace directory
-   - Use `vcs` to import ROS 2 source packages (rclcpp, rcl, rmw, etc.) from `deps.repos`
+   - Use `vcs` to import minimal ROS 2 source packages from `deps.repos`
+   - Includes only: rclcpp, rcl, rmw, Fast-DDS, rosidl, common_interfaces, rcl_interfaces, and their direct dependencies
    - Run `rosdep install` to ensure all dependencies are met
 3. **Build dependencies statically** (first run only):
    - Build the `deps/` workspace with `-DBUILD_SHARED_LIBS=OFF` for static linking
