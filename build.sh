@@ -88,10 +88,11 @@ if [ ! -d "deps/src" ]; then
     # Check if rosdep is initialized
     if [ ! -f "/etc/ros/rosdep/sources.list.d/20-default.list" ]; then
         echo "⚠ rosdep not initialized, initializing..."
-        if sudo rosdep init; then
+        if sudo rosdep init 2>/dev/null; then
             echo "✓ rosdep initialized successfully"
         else
-            echo "⚠ Failed to initialize rosdep (may already be initialized)"
+            # Could be already initialized or actual failure - try to continue
+            echo "ℹ rosdep init returned non-zero (may already be initialized)"
         fi
     fi
     
