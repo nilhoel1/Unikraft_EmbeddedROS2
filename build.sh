@@ -18,11 +18,11 @@ else
 fi
 
 # Source ROS 2 environment
-if [ -f "/opt/ros/humble/setup.bash" ]; then
-    source /opt/ros/humble/setup.bash
-    echo "✓ Sourced ROS 2 Humble environment"
+if [ -f "/opt/ros/jazzy/setup.bash" ]; then
+    source /opt/ros/jazzy/setup.bash
+    echo "✓ Sourced ROS 2 Jazzy environment"
 else
-    echo "✗ ROS 2 Humble not found at /opt/ros/humble"
+    echo "✗ ROS 2 Jazzy not found at /opt/ros/jazzy"
     exit 1
 fi
 
@@ -63,11 +63,11 @@ if [ ! -d "deps/src" ]; then
     echo ""
     echo "Importing ROS 2 source packages..."
     if [ ! -f "deps.repos" ]; then
-        echo "⚠ deps.repos file not found, downloading official ROS 2 Humble repos file..."
+        echo "⚠ deps.repos file not found, downloading official ROS 2 Jazzy repos file..."
         echo "  Note: This will download many packages and take longer to build."
         echo "  For faster builds, use the curated deps.repos from the repository."
-        if curl -fsSL https://raw.githubusercontent.com/ros2/ros2/humble/ros2.repos -o deps.repos; then
-            echo "✓ Downloaded deps.repos from ROS 2 Humble repository"
+        if curl -fsSL https://raw.githubusercontent.com/ros2/ros2/jazzy/ros2.repos -o deps.repos; then
+            echo "✓ Downloaded deps.repos from ROS 2 Jazzy repository"
         else
             echo "✗ Failed to download deps.repos"
             exit 1
@@ -182,6 +182,10 @@ echo ""
 echo "Sourcing deps workspace..."
 source deps/install/setup.bash
 echo "✓ Sourced deps workspace"
+
+# Set RMW implementation to Zenoh
+export RMW_IMPLEMENTATION=rmw_zenoh_cpp
+echo "✓ Set RMW_IMPLEMENTATION=rmw_zenoh_cpp"
 
 # Build the main package with static linking
 echo ""

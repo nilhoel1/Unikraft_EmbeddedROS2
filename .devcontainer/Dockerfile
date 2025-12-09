@@ -1,5 +1,5 @@
-# Use ROS 2 Humble base image
-FROM osrf/ros:humble-desktop-full
+# Use ROS 2 Jazzy base image
+FROM osrf/ros:jazzy-desktop-full
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -32,6 +32,10 @@ RUN wget https://get.kraftkit.sh -O /tmp/install-kraftkit.sh && \
 # Add kraft to PATH
 ENV PATH="/root/.local/bin:${PATH}"
 
+# Install Rust (required for building Zenoh)
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+
 # Initialize rosdep
 RUN rosdep update
 
@@ -42,7 +46,7 @@ RUN mkdir -p /workspace/src
 WORKDIR /workspace
 
 # Source ROS 2 setup
-RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
+RUN echo "source /opt/ros/jazzy/setup.bash" >> /root/.bashrc
 
 # Default command
 CMD ["/bin/bash"]

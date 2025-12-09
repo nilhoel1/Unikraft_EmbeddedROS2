@@ -3,88 +3,82 @@ repositories:
   rclcpp:
     type: git
     url: https://github.com/ros2/rclcpp.git
-    version: humble
+    version: jazzy
 
   # ROS 2 C support library (required by rclcpp)
   rcl:
     type: git
     url: https://github.com/ros2/rcl.git
-    version: humble
+    version: jazzy
 
   # ROS utilities (required by rcl)
   rcutils:
     type: git
     url: https://github.com/ros2/rcutils.git
-    version: humble
+    version: jazzy
 
   # ROS middleware interface (required by rcl)
   rmw:
     type: git
     url: https://github.com/ros2/rmw.git
-    version: humble
+    version: jazzy
 
   # ROS middleware implementation (required for RMW)
   rmw_implementation:
     type: git
     url: https://github.com/ros2/rmw_implementation.git
-    version: humble
+    version: jazzy
 
-  # Fast DDS RMW implementation (default RMW for Humble)
-  rmw_fastrtps:
+  # Zenoh RMW implementation (lightweight, open-source middleware)
+  rmw_zenoh:
     type: git
-    url: https://github.com/ros2/rmw_fastrtps.git
-    version: humble
+    url: https://github.com/ros2/rmw_zenoh.git
+    version: rolling
 
-  # Fast DDS (required by rmw_fastrtps)
-  Fast-DDS:
+  # Zenoh C library (required by rmw_zenoh)
+  zenoh-c:
     type: git
-    url: https://github.com/eProsima/Fast-DDS.git
-    version: 2.10.x
+    url: https://github.com/eclipse-zenoh/zenoh-c.git
+    version: 0.11.0.0
 
-  # Fast CDR (required by Fast-DDS)
-  Fast-CDR:
+  # Zenoh Rust (core library, required by zenoh-c)
+  zenoh:
     type: git
-    url: https://github.com/eProsima/Fast-CDR.git
-    version: v1.0.27
-
-  # Asio (required by Fast-DDS for networking)
-  asio:
-    type: git
-    url: https://github.com/chriskohlhoff/asio.git
-    version: asio-1-24-0
+    url: https://github.com/eclipse-zenoh/zenoh.git
+    version: 0.11.0
 
   # ROS IDL typesupport (required for message generation)
   rosidl:
     type: git
     url: https://github.com/ros2/rosidl.git
-    version: humble
+    version: jazzy
 
   # ROS IDL defaults (required for rosidl)
   rosidl_defaults:
     type: git
     url: https://github.com/ros2/rosidl_defaults.git
-    version: humble
+    version: jazzy
 
   # Lifecycle messages and interfaces (contains lifecycle_msgs)
   rcl_interfaces:
     type: git
     url: https://github.com/ros2/rcl_interfaces.git
-    version: humble
+    version: jazzy
 
   # Common interfaces (contains std_msgs and other standard message types)
   common_interfaces:
     type: git
     url: https://github.com/ros2/common_interfaces.git
-    version: humble
+    version: jazzy
 
   # Logging (required by rcl)
   rcl_logging:
     type: git
     url: https://github.com/ros2/rcl_logging.git
-    version: humble
+    version: jazzy
 
   # ROS 2 unique identifier messages (required by lifecycle)
   unique_identifier_msgs:
     type: git
     url: https://github.com/ros2/unique_identifier_msgs.git
-    version: humble
+    version: jazzy
