@@ -1,5 +1,5 @@
 {
-  "name": "ROS 2 Humble + Unikraft + QEMU",
+  "name": "ROS 2 Jazzy + Zenoh + Unikraft + Bazel",
   "build": {
     "dockerfile": "Dockerfile",
     "context": "."
@@ -19,11 +19,14 @@
         "ms-vscode.cmake-tools",
         "ms-python.python",
         "ms-iot.vscode-ros2",
-        "twxs.cmake"
+        "twxs.cmake",
+        "bazelbuild.vscode-bazel"
       ],
       "settings": {
         "terminal.integrated.shell.linux": "/bin/bash",
-        "cmake.configureOnOpen": false
+        "cmake.configureOnOpen": false,
+        "bazel.executable": "bazel",
+        "bazel.buildifierExecutable": "/usr/bin/buildifier"
       }
     }
   },

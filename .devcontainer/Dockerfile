@@ -22,7 +22,21 @@ RUN apt-get update && apt-get install -y \
     qemu-utils \
     socat \
     gdb \
+    apt-transport-https \
+    gnupg \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Bazel
+RUN curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor >bazel-archive-keyring.gpg && \
+    mv bazel-archive-keyring.gpg /usr/share/keyrings/bazel-archive-keyring.gpg && \
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/bazel-archive-keyring.gpg] https://storage.googleapis.com/bazel-apt stable jdk1.8" | tee /etc/apt/sources.list.d/bazel.list && \
+    apt-get update && apt-get install -y bazel && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Buildifier (Bazel formatter, optional but helpful)
+RUN BUILDIFIER_VERSION=6.4.0 && \
+    wget https://github.com/bazelbuild/buildtools/releases/download/v${BUILDIFIER_VERSION}/buildifier-linux-amd64 -O /usr/bin/buildifier && \
+    chmod +x /usr/bin/buildifier
 
 # Install KraftKit
 RUN wget https://get.kraftkit.sh -O /tmp/install-kraftkit.sh && \
