@@ -68,8 +68,7 @@ if [ ! -d "deps/src" ]; then
     fi
     
     cd deps
-    vcs import src < ../deps.repos
-    if [ $? -eq 0 ]; then
+    if vcs import src < ../deps.repos; then
         echo "✓ Successfully imported ROS 2 source packages"
     else
         echo "✗ Failed to import source packages"
@@ -84,8 +83,7 @@ if [ ! -d "deps/src" ]; then
         rosdep update || true
     fi
     
-    rosdep install --from-paths deps/src --ignore-src -r -y
-    if [ $? -eq 0 ]; then
+    if rosdep install --from-paths deps/src --ignore-src -r -y; then
         echo "✓ Dependencies installed successfully"
     else
         echo "⚠ Some dependencies may not have been installed, continuing..."
@@ -103,14 +101,12 @@ if [ ! -f "deps/install/setup.bash" ]; then
     echo "=========================================="
     
     cd deps
-    colcon build \
+    if colcon build \
         --cmake-args \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
         -DBUILD_SHARED_LIBS=OFF \
-        --event-handlers console_direct+
-    
-    if [ $? -eq 0 ]; then
+        --event-handlers console_direct+; then
         echo "✓ deps workspace built successfully"
     else
         echo "✗ deps workspace build failed"
