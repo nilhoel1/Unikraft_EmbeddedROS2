@@ -104,6 +104,23 @@ if [ ! -d "deps/src" ]; then
         echo "⚠ rosdep update failed, continuing anyway..."
     fi
     
+    # Fix any broken apt dependencies before rosdep install
+    echo ""
+    echo "Checking and fixing apt dependencies..."
+    if sudo apt --fix-broken install -y; then
+        echo "✓ apt dependencies fixed"
+    else
+        echo "⚠ apt --fix-broken install had issues, continuing..."
+    fi
+    
+    # Update apt cache to ensure latest package information
+    echo "Updating apt package cache..."
+    if sudo apt-get update; then
+        echo "✓ apt cache updated"
+    else
+        echo "⚠ apt-get update had issues, continuing..."
+    fi
+    
     if rosdep install --from-paths deps/src --ignore-src -r -y; then
         echo "✓ Dependencies installed successfully"
     else
